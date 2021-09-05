@@ -1,16 +1,24 @@
-# This is a sample Python script.
+# coding:utf-8
 
-# Press Maj+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
+"""
+Petit programme pour vérifier si le service postgre est lancé.
+Pour mémoire on lance le service postgre par la commande rc-service postgresql-13 start, mais cela va lancer le processus
+postgres VIA l'utilisateur postgres.
+"""
 
+import psutil
 
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+l = []
+for proc in psutil.process_iter(['pid', 'name', 'username']):
+    if proc.name() == 'postgres':
+        l.append(proc)
 
+if len(l) == 0:
+    print("Le serveur Postgresql n'est pas lancé")
+else:
+    print("Le serveur Posgresql est lancé via les processus")
+    for proc in l:
+        print(f"{proc.pid} | utilisateur : {proc.username()}")
 
-# Press the green button in the gutter to run the script.
-if __name__ == '__main__':
-    print_hi('PyCharm')
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+#TODO : maintenant que l'on a compris comment ça marche : faire un classe et un methode qui renvoie True or False
+#TODO : prévoir des logs
