@@ -7,6 +7,7 @@ postgres VIA l'utilisateur postgres.
 """
 
 import psutil
+import psycopg2
 
 
 class Config:
@@ -18,6 +19,10 @@ class Config:
     # Nom de l'utilisateur postgre et de sa base de donnée
     nom_utilisateur_pg = "python_project"
     nom_bdd_pg = "python_project"
+
+    # Paramètre de connexion postgre
+    host = "127.0.0.1"
+    port = "5432"
 
 
 class CheckPostgre:
@@ -44,11 +49,11 @@ class CheckPostgre:
             return True
 
 
-    def user_isexist():
+    def test_connextion():
+        # voir https://pynative.com/python-postgresql-tutorial/#h-install-psycopg2-using-the-pip-command
+        # et le scrip en bas pour capturer les erreurs
         pass
 
-    def db_isexist():
-        pass
 
 
 
@@ -61,4 +66,12 @@ if CheckPostgre.postgre_isrunning == True:
 else:
     print(False)
 
+# Scrip de connexion
+
+connexion = psycopg2.connect(user=Config.nom_utilisateur_pg, host=Config.host, port=Config.port, database=Config.nom_bdd_pg)
+cursor = connexion.cursor()
+print(connexion.get_dsn_parameters(), "\n")
+cursor.execute("SELECT version();")
+record = cursor.fetchone()
+print("You are connected to - ", record, "\n")
 
