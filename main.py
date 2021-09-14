@@ -8,6 +8,9 @@ postgres VIA l'utilisateur postgres.
 
 import psutil
 import psycopg2
+import logging
+
+logging.basicConfig(level=logging.DEBUG)
 
 
 class Config:
@@ -29,7 +32,7 @@ class CheckPostgre:
     """
     Classe pour vérifier le service postgre :
     1 - Le serveur postgre tourne bien
-    2 - L'utilisateur et la base de donnée exite.
+    2 - L'utilisateur et la base de donnée existe.
     Si un de ces tests échoue il faut prévenir le sysadmin pour configurer la bdd
     """
 
@@ -49,29 +52,37 @@ class CheckPostgre:
             return True
 
 
-    def test_connextion():
+    def test_connexion():
         # voir https://pynative.com/python-postgresql-tutorial/#h-install-psycopg2-using-the-pip-command
         # et le scrip en bas pour capturer les erreurs
-        pass
+        try:
+            connexion = psycopg2.connect(user=Config.nom_utilisateur_pg, host=Config.host, port=Config.port,
+                                         database=Config.nom_bdd_pg)
+            cursor = connexion.cursor()
+            cursor.execute("SELECT version();")
+            record = cursor.fetchone()
+            print("You are connected to - ", record, "\n")
+            cursor.close
+            connexion.close
+            print("Postgre connection is closed")
+
+        except Exception as error:
+            print("Error while connecting to Postgre", error)
+        finally:
+            print("Tests terminés")
+
+    def running_test():
+        CheckPostgre.postgre_isrunning()
+        CheckPostgre.test_connexion()
 
 
-
-
-# TODO : prévoir des logs pour enregistrer les test
 
 # Script de test
 
-if CheckPostgre.postgre_isrunning == True:
-    print(True)
-else:
-    print(False)
+CheckPostgre.running_test()
 
-# Scrip de connexion
 
-connexion = psycopg2.connect(user=Config.nom_utilisateur_pg, host=Config.host, port=Config.port, database=Config.nom_bdd_pg)
-cursor = connexion.cursor()
-print(connexion.get_dsn_parameters(), "\n")
-cursor.execute("SELECT version();")
-record = cursor.fetchone()
-print("You are connected to - ", record, "\n")
+
+# TODO : prévoir des logs pour enregistrer les test https://www.youtube.com/watch?v=-ARI4Cz-awo
+# TODO : interaction pappers pour récuperer les actes
 
