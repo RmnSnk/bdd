@@ -10,10 +10,10 @@ import psutil
 import psycopg2
 import logging
 
-logging.basicConfig(level=logging.DEBUG)
+logging.basicConfig(filename='msg.log', level=logging.DEBUG)
 
 
-class Config:
+class ConfigPostgre:
     """Classe qui contient la configuration"""
 
     # Nom du processus postgre recherché
@@ -43,7 +43,7 @@ class CheckPostgre:
 
         l = []
         for proc in psutil.process_iter(['pid', 'name', 'username']):
-            if proc.name() == Config.nom_proc_pg:
+            if proc.name() == ConfigPostgre.nom_proc_pg:
                 l.append(proc)
 
         if len(l) == 0:
@@ -52,28 +52,28 @@ class CheckPostgre:
             return True
 
 
-    def test_connexion():
+    def connexion_isok():
         # voir https://pynative.com/python-postgresql-tutorial/#h-install-psycopg2-using-the-pip-command
         # et le scrip en bas pour capturer les erreurs
         try:
-            connexion = psycopg2.connect(user=Config.nom_utilisateur_pg, host=Config.host, port=Config.port,
-                                         database=Config.nom_bdd_pg)
+            connexion = psycopg2.connect(user=ConfigPostgre.nom_utilisateur_pg, host=ConfigPostgre.host, port=ConfigPostgre.port,
+                                         database=ConfigPostgre.nom_bdd_pg)
             cursor = connexion.cursor()
             cursor.execute("SELECT version();")
             record = cursor.fetchone()
-            print("You are connected to - ", record, "\n")
+            logging.debug(record)
             cursor.close
             connexion.close
-            print("Postgre connection is closed")
+            print("Test de connexion réussis")
 
         except Exception as error:
-            print("Error while connecting to Postgre", error)
-        finally:
-            print("Tests terminés")
+            logging.debug(error)
+            print("Erreur lors du connexion : ", error)
+
 
     def running_test():
         CheckPostgre.postgre_isrunning()
-        CheckPostgre.test_connexion()
+        CheckPostgre.connexion_isok()
 
 
 
@@ -84,5 +84,8 @@ CheckPostgre.running_test()
 
 
 # TODO : prévoir des logs pour enregistrer les test https://www.youtube.com/watch?v=-ARI4Cz-awo
-# TODO : interaction pappers pour récuperer les actes
+# TODO :        Petit script simple pour enregistrer des informations dans la basse de données (Siren) soit un par un soit via une liste.
+# TODO suite :  Utiliser argparse pour ça
+# TODO Interaction avec pappers pour récuperer : Nom, adresse, gérant.
+# TODO : interaction pappers pour récuperer les statuts
 
