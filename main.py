@@ -20,7 +20,7 @@ class ConfigPostgre:
     nom_proc_pg = "postgres"
 
     # Nom de l'utilisateur postgre et de sa base de donnée
-    nom_utilisateur_pg = "python_project"
+    nom_utilisateur_pg = "python_project1"
     nom_bdd_pg = "python_project"
 
     # Paramètre de connexion postgre
@@ -39,7 +39,7 @@ class CheckPostgre:
 
     def postgre_isrunning():
 
-        """Renvoie une liste contenant les différents processus postgre si le service postgre est lancé, sinon renvoie 0"""
+        """Renvoi False si aucun processus postgre n'est trouvé. Renvoi True et log la liste des processus sinon"""
 
         l = []
         for proc in psutil.process_iter(['pid', 'name', 'username']):
@@ -47,14 +47,14 @@ class CheckPostgre:
                 l.append(proc)
 
         if len(l) == 0:
+            logging.critical("Pas de processus postgre trouvé")
             return False
         else:
+            logging.debug(f"Service postgre: {l}")
             return True
 
 
     def connexion_isok():
-        # voir https://pynative.com/python-postgresql-tutorial/#h-install-psycopg2-using-the-pip-command
-        # et le scrip en bas pour capturer les erreurs
         try:
             connexion = psycopg2.connect(user=ConfigPostgre.nom_utilisateur_pg, host=ConfigPostgre.host, port=ConfigPostgre.port,
                                          database=ConfigPostgre.nom_bdd_pg)
@@ -64,10 +64,10 @@ class CheckPostgre:
             logging.debug(record)
             cursor.close
             connexion.close
-            print("Test de connexion réussis")
+            print("Test de connexion réussi")
 
         except Exception as error:
-            logging.debug(error)
+            logging.critical(error)
             print("Erreur lors du connexion : ", error)
 
 
