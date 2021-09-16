@@ -10,6 +10,8 @@ import psutil
 import psycopg2
 import logging
 
+from sqlalchemy import create_engine, text
+
 logging.basicConfig(filename='msg.log', level=logging.DEBUG)
 
 
@@ -20,7 +22,7 @@ class ConfigPostgre:
     nom_proc_pg = "postgres"
 
     # Nom de l'utilisateur postgre et de sa base de donnée
-    nom_utilisateur_pg = "python_project1"
+    nom_utilisateur_pg = "python_project"
     nom_bdd_pg = "python_project"
 
     # Paramètre de connexion postgre
@@ -77,9 +79,16 @@ class CheckPostgre:
 
 
 
-# Script de test
+### Script de test ###
+# CheckPostgre.running_test()
 
-CheckPostgre.running_test()
+### Scritp pour tester le connexion ###
+engine = create_engine('postgresql+psycopg2://python_project@localhost:5432/python_project')
+with engine.connect() as conn:
+    result = conn.execute(text("select 'hello world'"))
+    print(result.all())
+
+# TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
 
 
 
