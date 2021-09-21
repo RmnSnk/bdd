@@ -83,13 +83,14 @@ class CheckPostgre:
 # CheckPostgre.running_test()
 
 ### Scritp pour tester le connexion ###
-engine = create_engine('postgresql+psycopg2://python_project@localhost:5432/python_project')
+engine_config = str('postgresql+psycopg2://'+ ConfigPostgre.nom_utilisateur_pg + '@' + ConfigPostgre.host + ':' + ConfigPostgre.port + '/' + ConfigPostgre.nom_bdd_pg)
+engine = create_engine(engine_config)
 with engine.connect() as conn:
     result = conn.execute(text("select 'hello world'"))
     print(result.all())
 
 # TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
-
+# TODO : reformater l'engine pour prendre les parmettre de config
 
 
 # TODO : prévoir des logs pour enregistrer les test https://www.youtube.com/watch?v=-ARI4Cz-awo
