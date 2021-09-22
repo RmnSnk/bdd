@@ -11,6 +11,9 @@ import psycopg2
 import logging
 
 from sqlalchemy import create_engine, text
+from sqlalchemy import Column, Integer, Text
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.ext.declarative import declarative_base
 
 logging.basicConfig(filename='msg.log', level=logging.DEBUG)
 
@@ -77,6 +80,25 @@ class CheckPostgre:
         CheckPostgre.postgre_isrunning()
         CheckPostgre.connexion_isok()
 
+"""
+On passe au table de la base de donnée
+"""
+
+Base = declarative_base()
+
+class Societe(Base):
+
+    __tablename__ = "societe"
+    siren = Column(Integer, primary_key=True)
+    nom = Column(Text)
+
+    def __init__(self, numero_siren, nom_entreprise):
+        self.siren = numero_siren
+        self.nom = nom_entreprise
+
+    def ___str__(self):
+        return self.nom + ":" + self.siren
+
 
 
 ### Script de test ###
@@ -84,13 +106,19 @@ class CheckPostgre:
 
 ### Scritp pour tester le connexion ###
 engine_config = str('postgresql+psycopg2://'+ ConfigPostgre.nom_utilisateur_pg + '@' + ConfigPostgre.host + ':' + ConfigPostgre.port + '/' + ConfigPostgre.nom_bdd_pg)
-engine = create_engine(engine_config)
-with engine.connect() as conn:
-    result = conn.execute(text("select 'hello world'"))
-    print(result.all())
+engine = create_engine(engine_config, echo=False)
+Base.metadata.create_all(bind=engine, tables=[Base.metadata.tables["societe"]]) # Creation de la table société uniquement
+
+Session = sessionmaker(bind=engine)
+session = Session()
+
+google = Societe(890765453, "Google")
+session.add(google)
+session.commit()
+
 
 # TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
-# TODO : reformater l'engine pour prendre les parmettre de config
+
 
 
 # TODO : prévoir des logs pour enregistrer les test https://www.youtube.com/watch?v=-ARI4Cz-awo
