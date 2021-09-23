@@ -41,7 +41,6 @@ class CheckPostgre:
     Si un de ces tests échoue il faut prévenir le sysadmin pour configurer la bdd
     """
 
-
     def postgre_isrunning():
 
         """Renvoi False si aucun processus postgre n'est trouvé. Renvoi True et log la liste des processus sinon"""
@@ -58,10 +57,10 @@ class CheckPostgre:
             logging.debug(f"Service postgre: {l}")
             return True
 
-
     def connexion_isok():
         try:
-            connexion = psycopg2.connect(user=ConfigPostgre.nom_utilisateur_pg, host=ConfigPostgre.host, port=ConfigPostgre.port,
+            connexion = psycopg2.connect(user=ConfigPostgre.nom_utilisateur_pg, host=ConfigPostgre.host,
+                                         port=ConfigPostgre.port,
                                          database=ConfigPostgre.nom_bdd_pg)
             cursor = connexion.cursor()
             cursor.execute("SELECT version();")
@@ -75,10 +74,10 @@ class CheckPostgre:
             logging.critical(error)
             print("Erreur lors du connexion : ", error)
 
-
     def running_test():
         CheckPostgre.postgre_isrunning()
         CheckPostgre.connexion_isok()
+
 
 """
 On passe au table de la base de donnée
@@ -86,8 +85,8 @@ On passe au table de la base de donnée
 
 Base = declarative_base()
 
-class Societe(Base):
 
+class Societe(Base):
     __tablename__ = "societe"
     siren = Column(Integer, primary_key=True)
     nom = Column(Text)
@@ -100,30 +99,75 @@ class Societe(Base):
         return self.nom + ":" + self.siren
 
 
+def connexion_bdd():
+    """Renvoi les objets engine session pour la connexion future"""
 
-### Script de test ###
-# CheckPostgre.running_test()
+    engine_config = str(
+        'postgresql+psycopg2://' + ConfigPostgre.nom_utilisateur_pg + '@' + ConfigPostgre.host + ':' + ConfigPostgre.port + '/' + ConfigPostgre.nom_bdd_pg)
+    engine = create_engine(engine_config, echo=False)
+
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    return engine, session
+
 
 ### Scritp pour tester le connexion ###
-engine_config = str('postgresql+psycopg2://'+ ConfigPostgre.nom_utilisateur_pg + '@' + ConfigPostgre.host + ':' + ConfigPostgre.port + '/' + ConfigPostgre.nom_bdd_pg)
-engine = create_engine(engine_config, echo=False)
-Base.metadata.create_all(bind=engine, tables=[Base.metadata.tables["societe"]]) # Creation de la table société uniquement
+"""
 
-Session = sessionmaker(bind=engine)
-session = Session()
 
 google = Societe(890765453, "Google")
 session.add(google)
 session.commit()
+"""
 
 
-# TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
+### Code du GUI ###
+
+def menu():
+    print()
+    print(f"*** PYTHON POSTGRESQL API ***")
+    print()
+    print("1. Tester la connexion au serveur postgre")
+    print("2. Créer la table société")
+    print("3. Effacer la table société")
+    print("4. Lister les Siren")
+    print("5. Ajouter un Siren")
+    print("6. Effacer un Siren")
+    print("Q : Pour quitter")
+    print()
 
 
+flag = True
+choix_possible = ("1 2 3 4 5 6 Q")
+liste_choix_possible = choix_possible.split()
 
+while flag:
+    menu()
+    choix = input("Votre choix : ")
+
+    if choix not in liste_choix_possible:
+        print("Choix non permis")
+    if choix == "1":
+        CheckPostgre.running_test()
+
+    if choix == "2":
+        engine, session = connexion_bdd()
+        Base.metadata.create_all(bind=engine,
+                                 tables=[Base.metadata.tables["societe"]])  # Creation de la table société uniquement
+        print("Table créée")
+
+    if choix == "3":
+        engine, session = connexion_bdd()
+        Base.metadata.drop_all(bind=engine,
+                               tables=[Base.metadata.tables["societe"]])
+        print("Table effacée")
+
+    if choix == "4":
+        pass
+        # TODO : A coder
+
+    # TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
 # TODO : prévoir des logs pour enregistrer les test https://www.youtube.com/watch?v=-ARI4Cz-awo
 # TODO :        Petit script simple pour enregistrer des informations dans la basse de données (Siren) soit un par un soit via une liste.
 # TODO suite :  Utiliser argparse pour ça
-# TODO Interaction avec pappers pour récuperer : Nom, adresse, gérant.
-# TODO : interaction pappers pour récuperer les statuts
-
+# TODO Interaction avec pappers pour récuperer le nom de la société
