@@ -11,7 +11,7 @@ import psycopg2
 import logging
 
 from sqlalchemy import create_engine, text
-from sqlalchemy import Column, Integer, Text
+from sqlalchemy import Column, Integer, Text, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
 
@@ -91,7 +91,7 @@ class Societe(Base):
     siren = Column(Integer, primary_key=True)
     nom = Column(Text)
 
-    def __init__(self, numero_siren, nom_entreprise):
+    def __init__(self, numero_siren, nom_entreprise="tototo"):
         self.siren = numero_siren
         self.nom = nom_entreprise
 
@@ -147,6 +147,11 @@ while flag:
 
     if choix not in liste_choix_possible:
         print("Choix non permis")
+
+    if choix == "Q":
+        print("Exiting ...")
+        exit()
+
     if choix == "1":
         CheckPostgre.running_test()
 
@@ -163,11 +168,34 @@ while flag:
         print("Table effacée")
 
     if choix == "4":
+        engine, session = connexion_bdd()
+        liste_siren = session.execute(select(Societe).order_by(Societe.siren))
+        i = 1
+        for user_obj in liste_siren.scalars():
+            print(f"{i}.    {user_obj.siren} : {user_obj.nom}")
+            i += 1
+
+    if choix == "5":
+        siren_saisi = int(input("Saisisser un Siren : ")) # TODO : Vérifier la forme du siren
+        engine, session = connexion_bdd()
+        try:
+            siren_a_ajouter = Societe(siren_saisi)
+            session.add(siren_a_ajouter)
+            session.commit()
+            print("Siren ajouté")
+        except:
+            print("Siren déjà Saisi")
+
+    if choix == "5":
+        siren_saisi = int(input("Saisisser un Siren : "))  # TODO : Vérifier la forme du siren
+        engine, session = connexion_bdd()
         pass
+
+
+
         # TODO : A coder
 
-    # TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
-# TODO : prévoir des logs pour enregistrer les test https://www.youtube.com/watch?v=-ARI4Cz-awo
+# TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
 # TODO :        Petit script simple pour enregistrer des informations dans la basse de données (Siren) soit un par un soit via une liste.
 # TODO suite :  Utiliser argparse pour ça
 # TODO Interaction avec pappers pour récuperer le nom de la société
