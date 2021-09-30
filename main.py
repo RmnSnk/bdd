@@ -10,6 +10,7 @@ import psutil
 import psycopg2
 import logging
 
+import sqlalchemy.orm.exc
 from sqlalchemy import create_engine, text
 from sqlalchemy import Column, Integer, Text, select
 from sqlalchemy.orm import sessionmaker
@@ -176,7 +177,7 @@ while flag:
             i += 1
 
     if choix == "5":
-        siren_saisi = int(input("Saisisser un Siren : ")) # TODO : Vérifier la forme du siren
+        siren_saisi = int(input("Saisisser un Siren : ")) # TODO : Vérifier la forme du siren -> incorporer le script regex.py
         engine, session = connexion_bdd()
         try:
             siren_a_ajouter = Societe(siren_saisi)
@@ -186,16 +187,23 @@ while flag:
         except:
             print("Siren déjà Saisi")
 
-    if choix == "5":
-        siren_saisi = int(input("Saisisser un Siren : "))  # TODO : Vérifier la forme du siren
+    if choix == "6":
+        siren_saisi = int(input("Saisisser un Siren : "))  # TODO : Vérifier la forme du siren + confirmation
         engine, session = connexion_bdd()
-        pass
+        try:
+            siren_to_delete = session.get(Societe, siren_saisi)
+            session.delete(siren_to_delete)
+            session.commit()
+            print("Siren effacé")
+        except sqlalchemy.orm.exc.UnmappedInstanceError:
+            print("Ce Siren n'existe pas")
 
 
 
-        # TODO : A coder
 
-# TODO : Dans l'immediat : créer une table et permettre d'inserer des siren
+
+
+#
 # TODO :        Petit script simple pour enregistrer des informations dans la basse de données (Siren) soit un par un soit via une liste.
 # TODO suite :  Utiliser argparse pour ça
 # TODO Interaction avec pappers pour récuperer le nom de la société
