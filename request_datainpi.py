@@ -7,7 +7,7 @@ Test de l'API de data.inpi
 import requests
 
 login = "romain.sonneck-portail-data"
-password = "volYjaba2"
+password = "xxxxxxxx" -> A modifier
 urlbase = "https://opendata-rncs.inpi.fr/services/diffusion/login"
 
 #api_token = "584e92f6a67ab9972f6be58d9c9d43fa42052d4cf640dae6"
