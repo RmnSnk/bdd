@@ -9,9 +9,10 @@ postgres VIA l'utilisateur postgres.
 import psutil
 import psycopg2
 import logging
+import re
 
 import sqlalchemy.orm.exc
-from sqlalchemy import create_engine, text
+from sqlalchemy import create_engine
 from sqlalchemy import Column, Integer, Text, select
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
@@ -137,6 +138,25 @@ def menu():
     print("Q : Pour quitter")
     print()
 
+def siren_check():
+    pattern = '[0-9]'
+    siren_saisi = input("Saisisser un Siren : ")
+    if len(siren_saisi) != 9:
+        print("Un Siren comporte exactement 9 chiffres")
+        return 0
+    else:
+        flag = 0
+        for c in siren_saisi:
+            result = re.match(pattern, c)
+            if not result:
+                flag += 1
+        if flag != 0:
+            print("La chaines doit contenir que des chiffres")
+            return 0
+        else:
+            print("Numero siren valide")
+            return int(siren_saisi)
+
 
 flag = True
 choix_possible = ("1 2 3 4 5 6 Q")
@@ -177,10 +197,13 @@ while flag:
             i += 1
 
     if choix == "5":
-        siren_saisi = int(input("Saisisser un Siren : ")) # TODO : Vérifier la forme du siren -> incorporer le script regex.py
+        siren_saisi_check = int(siren_check())
+        while siren_saisi_check == 0:
+            siren_saisi_check = int(siren_check())
+
         engine, session = connexion_bdd()
         try:
-            siren_a_ajouter = Societe(siren_saisi)
+            siren_a_ajouter = Societe(siren_saisi_check)
             session.add(siren_a_ajouter)
             session.commit()
             print("Siren ajouté")
@@ -188,10 +211,10 @@ while flag:
             print("Siren déjà Saisi")
 
     if choix == "6":
-        siren_saisi = int(input("Saisisser un Siren : "))  # TODO : Vérifier la forme du siren + confirmation
+        siren_saisi_check = int(input("Saisisser un Siren : "))  # TODO : Vérifier la forme du siren + confirmation, faire comme le 5
         engine, session = connexion_bdd()
         try:
-            siren_to_delete = session.get(Societe, siren_saisi)
+            siren_to_delete = session.get(Societe, siren_saisi_check)
             session.delete(siren_to_delete)
             session.commit()
             print("Siren effacé")
