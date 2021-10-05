@@ -7,30 +7,30 @@ Test de l'API de data.inpi
 import requests
 
 login = "romain.sonneck-portail-data"
-password = "xxxxxxxx" -> A modifier
-urlbase = "https://opendata-rncs.inpi.fr/services/diffusion/login"
+password = "volYjaba2" #-> A modifier
 
-#api_token = "584e92f6a67ab9972f6be58d9c9d43fa42052d4cf640dae6"
+""" Si on utilise pas de session, on doit gérer les cookies et les repasser à chaque requête """
 
-#urlbase = "https://api.pappers.fr/v2/"
+def login_datapinpi():
+    urlbase = "https://opendata-rncs.inpi.fr/services/diffusion/login"
+    r = requests.post(urlbase, headers={'Login': login, 'Password': password})
+    cookie = r.headers['Set-Cookie']
+    print(r.text)
+    return cookie
 
-#siren = "343222386" # DTIF
+def logout_datainpi(cookie):
+    urlbase = "https://opendata-rncs.inpi.fr/services/diffusion/logout"
+    r = requests.post(urlbase, headers={'cookie': cookie})
+    print(r.text)
 
 
 
-r = requests.post(urlbase, headers={'Login': login, 'Password': password})
+def get_name_datainpi(cookie, siren=343222386):
+    urlbase = 'https://opendata-rncs.inpi.fr/services/diffusion/imrs-saisis/find'
+    payload = {'siren': siren}
+    r = requests.get(urlbase, params=payload, headers={'cookie': cookie})
+    print(r.text)
 
-## Voir la doc mais le "cookie" est dans le header de la réponse : 'Set-Cookie': 'JSESSIONID=81BA2DAB1ABB65E6C1A1BF7A36334CBC
-
-print(r.headers)
-print(r.headers['Set-Cookie'])
-cookie = r.headers['Set-Cookie']
-print(r.text)
-
-"""Voir pour réutiliser le cookie"""
-# TODO : https://fr.python-requests.org/en/latest/user/advanced.html
-
-#https://opendata-rncs.inpi.fr/services/diffusion/imrs-saisis/find?siren=343222386
-
-r2 = requests.get('https://opendata-rncs.inpi.fr/services/diffusion/imrs-saisis/find?siren=343222386', headers={'cookie': cookie})
-print(r2.text)
+cookie = login_datapinpi()
+get_name_datainpi(cookie, 791835689)
+logout_datainpi(cookie)
