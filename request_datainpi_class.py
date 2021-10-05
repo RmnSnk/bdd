@@ -47,7 +47,6 @@ def bleu(texte):
     texte = START + texte + END
     return texte
 
-
 connexion = Connexion_datainpi()
 connexion.login_datapinpi()
 connexion.get_name_datainpi()
