@@ -229,4 +229,5 @@ while flag:
 #
 # TODO :        Petit script simple pour enregistrer des informations dans la basse de données (Siren) soit un par un soit via une liste.
 # TODO suite :  Utiliser argparse pour ça
-# TODO Interaction avec pappers pour récuperer le nom de la société
+# TODO Interaction avec data.inpi et siren pour récuperer le nom de la société
+        # TODO : faire si l'entreprise inconnu data.inpi, recherche sur siren.

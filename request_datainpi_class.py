@@ -8,6 +8,7 @@ import requests
 import logging
 
 import config # Credential pour data.inpi
+import mise_en_forme as mf # Mise en forme
 
 logging.basicConfig(filename='msg.log', level=logging.DEBUG)
 
@@ -37,17 +38,15 @@ class Connexion_datainpi():
         payload = {'siren': siren}
         r = Connexion_datainpi.session.get(urlbase, params=payload)
         l = r.json() # r.json() renvoie une liste de 1 élément. Cet élément est un dictionnaire à deux clef : siren et Nom
-        print(f"le siren {bleu(str(siren))} est attribué  à : {bleu(l[0].get('denominationSociale'))}")
+        if len(l) == 0:
+            print(f"le Siren {mf.bleu(str(siren))} est inconnu de data.inpi.fr")
+            texte = "(Siren erroné ou entreprise non inscrite au RCS, comme certain auto-entrepreneur libéraux)"
+            print(f"{mf.italique(texte)}")
+        else:
+            print(f"le siren {mf.bleu(str(siren))} est attribué  à : {mf.bleu(l[0].get('denominationSociale'))}")
 
-
-
-def bleu(texte):
-    START = "\033[34m"
-    END = "\033[0m"
-    texte = START + texte + END
-    return texte
 
 connexion = Connexion_datainpi()
 connexion.login_datapinpi()
-connexion.get_name_datainpi()
+connexion.get_name_datainpi(451606651)
 connexion.logout_datainpi()
