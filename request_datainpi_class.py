@@ -17,8 +17,8 @@ class Connexion_datainpi():
     """En utilisant l'objet Session, on n'a plus à gérer les cookies"""
 
     session = requests.Session()
-    login = config.Config_connexion.login
-    password = config.Config_connexion.password
+    login = config.Config_connexion_datainpi.login
+    password = config.Config_connexion_datainpi.password
 
     def __init__(self):
         pass

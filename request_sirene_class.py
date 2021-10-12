@@ -15,3 +15,6 @@ logging.basicConfig(filename='msg.log', level=logging.DEBUG)
 """
 https://api.insee.fr/catalogue/site/themes/wso2/subthemes/insee/pages/item-info.jag?name=Sirene&version=V3&provider=insee
 """
+
+# TODO : coder une simple requête
+# TODO : renouveler le Token
